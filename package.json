@@ -1,0 +1,29 @@
+{
+  "name": "api-products",
+  "version": "1.0.0",
+  "description": "A Node.js API to manage products with input validation and modular structure",
+  "main": "app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "frontend": "cd frontend && npx serve .",
+    "dev": "concurrently \"npm start\" \"npm run frontend\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michelledantas/api-products.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/michelledantas/api-products/issues"
+  },
+  "homepage": "https://github.com/michelledantas/api-products#readme",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
