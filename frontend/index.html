@@ -1,34 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Product Manager</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body { font-family: Arial, sans-serif; background: #616161; padding: 40px; }
-    h1 { text-align: center; }
-    .container { max-width: 650px; margin: auto; background: #fff; padding: 24px; border-radius: 10px; box-shadow: 0 2px 8px #0002; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
-    th { background: #fafafa; }
-    tr:last-child td { border-bottom: none; }
-    .form-row { display: flex; gap: 10px; margin-bottom: 10px; }
-    .form-row input { flex: 1; padding: 8px; }
-    button { padding: 8px 14px; border: none; border-radius: 5px; background: #0077cc; color: #fff; cursor: pointer; }
-    button.delete { background: #e74c3c; }
-    button.edit { background: #f39c12; }
-    .error, .success { margin: 12px 0; padding: 10px; border-radius: 5px; }
-    .error { background: #fdecea; color: #c0392b; }
-    .success { background: #eafaf1; color: #27ae60; }
-    @media (max-width: 700px) {
-      .container { padding: 8px; }
-      table, .form-row { font-size: 15px; }
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <div class="container">
-    <h1>Product Manager</h1>
+    <h1>Controle de Estoque</h1>
 
     <div id="message"></div>
 
@@ -43,97 +25,19 @@
     <table>
       <thead>
         <tr>
-          <th>ID</th><th>Name</th><th>Price</th><th>Actions</th>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Price</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody id="productTable"></tbody>
     </table>
   </div>
-
-  <script>
-    const apiUrl = "http://localhost:3000/products";
-    const productTable = document.getElementById("productTable");
-    const productForm = document.getElementById("productForm");
-    const nameInput = document.getElementById("name");
-    const priceInput = document.getElementById("price");
-    const messageDiv = document.getElementById("message");
-    let editingId = null;
-
-    function showMessage(msg, type = "success") {
-      messageDiv.innerHTML = `<div class="${type}">${msg}</div>`;
-      setTimeout(() => messageDiv.innerHTML = "", 2500);
-    }
-
-    function fetchProducts() {
-      fetch(apiUrl)
-        .then(res => res.json())
-        .then(products => {
-          productTable.innerHTML = products.map(product => `
-            <tr>
-              <td>${product.id}</td>
-              <td>${product.name}</td>
-              <td>R$ ${product.price.toFixed(2)}</td>
-              <td>
-                <button class="edit" onclick="editProduct(${product.id}, '${product.name}', ${product.price})">Edit</button>
-                <button class="delete" onclick="deleteProduct(${product.id})">Delete</button>
-              </td>
-            </tr>
-          `).join('');
-        });
-    }
-
-    window.editProduct = function(id, name, price) {
-      nameInput.value = name;
-      priceInput.value = price;
-      editingId = id;
-      productForm.querySelector('button[type="submit"]').textContent = "Update";
-    }
-
-    window.deleteProduct = function(id) {
-      if (!confirm('Are you sure you want to delete this product?')) return;
-      fetch(`${apiUrl}/${id}`, { method: "DELETE" })
-        .then(res => {
-          if (res.status === 204) {
-            showMessage("Product deleted!");
-            fetchProducts();
-          } else {
-            res.json().then(data => showMessage(data.error, "error"));
-          }
-        });
-    }
-
-    productForm.addEventListener("submit", function(e) {
-      e.preventDefault();
-      const name = nameInput.value.trim();
-      const price = parseFloat(priceInput.value);
-
-      if (!name || isNaN(price)) {
-        showMessage("Fill in all fields correctly.", "error");
-        return;
-      }
-
-      const method = editingId ? "PUT" : "POST";
-      const url = editingId ? `${apiUrl}/${editingId}` : apiUrl;
-      fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, price })
-      })
-      .then(async res => {
-        if (res.ok) {
-          productForm.reset();
-          showMessage(editingId ? "Product updated!" : "Product added!");
-          editingId = null;
-          productForm.querySelector('button[type="submit"]').textContent = "Add Product";
-          fetchProducts();
-        } else {
-          const data = await res.json();
-          showMessage((data.errors && data.errors.join(", ")) || data.error, "error");
-        }
-      });
-    });
-
-    fetchProducts();
-  </script>
+  <div class="logout-container">
+    <button id="logoutButton">Logout</button>
+  </div>
+  <script src="main.js"></script>
 </body>
+
 </html>
