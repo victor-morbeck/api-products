@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Login - Product Manager</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <div class="login-container">
     <h2>Login</h2>
@@ -16,20 +18,7 @@
       <button type="submit">Login</button>
     </form>
   </div>
-  <script>
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const errorDiv = document.getElementById('loginError');
-
-      // Exemplo de validação simples (substitua por autenticação real)
-      if (username === "admin" && password === "1234") {
-        window.location.href = "index.html";
-      } else {
-        errorDiv.textContent = "Usuário ou senha inválidos.";
-      }
-    });
-  </script>
+  <script src="main.js"></script>
 </body>
+
 </html>

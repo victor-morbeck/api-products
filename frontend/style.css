@@ -1,8 +1,12 @@
 body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0 16px;
+  background: #fdf6fb;
   font-family: 'Inter', sans-serif;
-  background: #fdf6fb; /* rosa pastel suave */
-  padding: 32px;
-  color: #333;
 }
 
 h1 {
@@ -32,6 +36,8 @@ table {
 th, td {
   padding: 14px 12px;
   border-bottom: 1px solid #f3e5f5;
+  text-align: center;
+  vertical-align: middle;
 }
 
 th {
@@ -90,6 +96,7 @@ button.delete:hover {
 button.edit {
   background: #fff9c4;
   color: #795548;
+  margin-right: 8px; /* Espaço entre os botões */
 }
 
 button.edit:hover {
@@ -145,24 +152,27 @@ button.edit:hover {
   }
 }
 
-/* Login-style Card */
+/* Card de login */
 .login-container {
-  max-width: 360px;
-  margin: 60px auto;
+  max-width: 400px;
+  width: 100%;
   background: #fff;
   padding: 32px;
   border-radius: 20px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   text-align: center;
+  box-sizing: border-box;
 }
 
+/* Título opcional */
 .login-container h2 {
-  margin-bottom: 20px;
   color: #ab47bc;
   font-size: 1.75rem;
+  margin-bottom: 24px;
   font-weight: 600;
 }
 
+/* Inputs alinhados */
 .login-container input {
   width: 100%;
   padding: 14px;
@@ -171,8 +181,10 @@ button.edit:hover {
   border-radius: 12px;
   background: #fdf6fb;
   font-size: 15px;
+  box-sizing: border-box;
 }
 
+/* Botão estilizado */
 .login-container button {
   width: 100%;
   padding: 14px;
@@ -190,8 +202,11 @@ button.edit:hover {
   background: #ab47bc;
 }
 
+/* Mensagem de erro */
 .login-error {
   color: #c62828;
   margin-bottom: 12px;
   font-weight: 500;
+  min-height: 24px;
 }
+
