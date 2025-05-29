@@ -1,14 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
   const isLoginPage = window.location.pathname.endsWith('login.html');
+  const isListaPage = window.location.pathname.endsWith('lista.html');
+  const isIndexPage = window.location.pathname.endsWith('index.html');
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
 
-  // 🔐 Redireciona para login se não estiver autenticado
+  // Redirecionamento de autenticação
   if (!isLoginPage && !isLoggedIn) {
     window.location.href = 'login.html';
     return;
   }
-
-  // 🔁 Redireciona para index se já estiver logado e está na tela de login
   if (isLoginPage && isLoggedIn) {
     window.location.href = 'index.html';
     return;
@@ -16,15 +16,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (isLoginPage) {
     handleLogin();
-  } else {
+  } else if (isIndexPage) {
     initProductScreen();
+    handleStockQueryBtn();
+    handleLogoutBtn();
+  } else if (isListaPage) {
+    initListaScreen();
+    handleVoltarBtn();
+    handleLogoutBtn();
   }
 });
 
+// --- LOGIN ---
 function handleLogin() {
   const loginForm = document.getElementById('loginForm');
   const errorDiv = document.getElementById('loginError');
-
   if (!loginForm) return;
 
   loginForm.addEventListener('submit', (e) => {
@@ -41,62 +47,16 @@ function handleLogin() {
   });
 }
 
+// --- INDEX (ADICIONAR PRODUTO) ---
 function initProductScreen() {
   const apiUrl = 'http://localhost:3000/products';
-  const productTable = document.getElementById('productTable');
   const productForm = document.getElementById('productForm');
   const nameInput = document.getElementById('name');
   const priceInput = document.getElementById('price');
   const messageDiv = document.getElementById('message');
   let editingId = null;
 
-  if (!productForm || !productTable) return;
-
-  function showMessage(msg, type = 'success') {
-    messageDiv.innerHTML = `<div class="${type}">${msg}</div>`;
-    setTimeout(() => messageDiv.innerHTML = '', 2500);
-  }
-
-  function fetchProducts() {
-    fetch(apiUrl)
-      .then((res) => res.json())
-      .then((products) => {
-        productTable.innerHTML = products.map(product => `
-          <tr>
-            <td>${product.id}</td>
-            <td>${product.name}</td>
-            <td>R$ ${product.price.toFixed(2)}</td>
-            <td>
-              <div class="action-buttons">
-                <button class="edit" onclick="editProduct(${product.id}, '${product.name}', ${product.price})">Editar</button>
-                <button class="delete" onclick="deleteProduct(${product.id})">Excluir</button>
-              </div>
-            </td>
-          </tr>
-        `).join('');
-      });
-  }
-
-  window.editProduct = function (id, name, price) {
-    nameInput.value = name;
-    priceInput.value = price;
-    editingId = id;
-    productForm.querySelector('button[type="submit"]').textContent = 'Atualizar';
-  };
-
-  window.deleteProduct = function (id) {
-    if (!confirm('Tem certeza que deseja excluir este produto?')) return;
-
-    fetch(`${apiUrl}/${id}`, { method: 'DELETE' })
-      .then(res => {
-        if (res.status === 204) {
-          showMessage('Produto excluído!');
-          fetchProducts();
-        } else {
-          res.json().then(data => showMessage(data.error || 'Erro ao excluir', 'error'));
-        }
-      });
-  };
+  if (!productForm) return;
 
   productForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -119,10 +79,10 @@ function initProductScreen() {
       .then(async (res) => {
         if (res.ok) {
           productForm.reset();
-          showMessage(editingId ? 'Produto atualizado!' : 'Produto adicionado!');
           editingId = null;
-          productForm.querySelector('button[type="submit"]').textContent = 'Adicionar Produto';
-          fetchProducts();
+          productForm.querySelector('button[type="submit"]').textContent = 'Add Product';
+          // Redireciona para lista.html após adicionar
+         // window.location.href = 'lista.html';
         } else {
           const data = await res.json();
           showMessage((data.errors && data.errors.join(', ')) || data.error, 'error');
@@ -130,6 +90,58 @@ function initProductScreen() {
       });
   });
 
+  function showMessage(msg, type = 'success') {
+    if (!messageDiv) return;
+    messageDiv.innerHTML = `<div class="${type}">${msg}</div>`;
+    setTimeout(() => messageDiv.innerHTML = '', 2500);
+  }
+}
+
+// --- LISTA (MOSTRAR PRODUTOS) ---
+function initListaScreen() {
+  const apiUrl = 'http://localhost:3000/products';
+  const productTable = document.getElementById('productTable');
+  if (!productTable) return;
+
+  fetch(apiUrl)
+    .then((res) => res.json())
+    .then((products) => {
+      productTable.innerHTML = products.map(product => `
+        <tr>
+          <td>${product.id}</td>
+          <td>${product.name}</td>
+          <td>R$ ${product.price.toFixed(2)}</td>
+          <td>${product.quantity !== undefined ? product.quantity : '-'}</td>
+          <td>
+            <!-- Ações podem ser adicionadas aqui -->
+          </td>
+        </tr>
+      `).join('');
+    });
+}
+
+// --- BOTÃO STOCK QUERY ---
+function handleStockQueryBtn() {
+  const stockQueryBtn = document.getElementById('stockQueryBtn');
+  if (stockQueryBtn) {
+    stockQueryBtn.addEventListener('click', () => {
+      window.location.href = 'lista.html';
+    });
+  }
+}
+
+// --- BOTÃO VOLTAR ---
+function handleVoltarBtn() {
+  const voltarBtn = document.getElementById('voltar-para-add');
+  if (voltarBtn) {
+    voltarBtn.addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+  }
+}
+
+// --- BOTÃO LOGOUT ---
+function handleLogoutBtn() {
   const logoutBtn = document.getElementById('logoutButton');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
@@ -137,20 +149,6 @@ function initProductScreen() {
       window.location.href = 'login.html';
     });
   }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    // ...existing code...
-
-    // Lógica para o botão Stock Query
-    const stockQueryBtn = document.getElementById('stockQueryBtn');
-    if (stockQueryBtn) {
-      stockQueryBtn.addEventListener('click', () => {
-        window.location.href = 'stock-list.html';
-      });
-    }
-
-    // ...existing code...
-  });
 
   fetchProducts();
 }

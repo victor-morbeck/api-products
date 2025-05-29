@@ -1,48 +1,64 @@
+/* Reset e base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
+  font-family: 'Inter', sans-serif;
+  background: #fdf6fb;
+  /* pastel rosa muito claro */
+  color: #7c6654;
+  /* marrom pastel */
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   min-height: 100vh;
-  margin: 0;
-  padding: 0 16px;
-  background: #fdf6fb;
-  font-family: 'Inter', sans-serif;
+  padding: 24px 16px;
 }
 
-h1 {
-  text-align: center;
-  font-weight: 600;
-  font-size: 2rem;
-  color: #7b1fa2;
-  margin-bottom: 24px;
-}
-
+/* Container principal */
 .container {
-  max-width: 800px;
-  margin: auto;
-  background: #ffffff;
-  padding: 32px;
+  width: 100%;
+  max-width: 900px;
+  background: #fffaf7;
+  /* marrom/rosa bem claro */
   border-radius: 20px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+  padding: 32px;
 }
 
+/* Título */
+h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #a1887f;
+  /* marrom pastel */
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+/* Tabela de produtos */
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
-  font-size: 16px;
+  font-size: 15px;
 }
 
-th, td {
+th,
+td {
   padding: 14px 12px;
-  border-bottom: 1px solid #f3e5f5;
   text-align: center;
-  vertical-align: middle;
+  border-bottom: 1px solid #f2f1f2;
 }
 
 th {
-  background: #f8e8ff;
-  color: #6a1b9a;
+  background: #f8bbd0;
+  /* pastel rosa médio */
+  color: #6d4c41;
+  /* marrom escuro pastel */
   font-weight: 600;
 }
 
@@ -50,164 +66,181 @@ tr:last-child td {
   border-bottom: none;
 }
 
+/* Formulário */
 .form-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
-  margin-bottom: 20px;
-  flex-wrap: nowrap; /* Impede quebra de linha */
-  align-items: center;
+  margin-bottom: 24px;
 }
 
 .form-row input {
   flex: 1;
   padding: 12px;
-  border: 1px solid #e1bee7;
   border-radius: 12px;
-  background: #fff8fd;
+  border: 1.5px solid #b3c7e6;
+  /* azul pastel */
+  background: #fdf3f7;
+  /* rosa pastel claro */
   font-size: 15px;
+  color: #7c6654;
+  /* marrom pastel */
 }
 
-.form-row button {
-  white-space: nowrap; /* Garante que o texto do botão não quebre */
-}
-
+/* Botões padrão */
 button {
-  padding: 10px 18px;
+  min-width: 120px;
+  height: 44px;
+  padding: 0 16px;
   border: none;
   border-radius: 12px;
-  font-weight: 500;
   font-size: 15px;
-  transition: background 0.3s ease;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  text-align: center;
+  background: linear-gradient(90deg, #b3c7e6 0%, #ffe0b2 100%);
+  /* azul pastel para marrom pastel claro */
+  color: #6d4c41;
 }
 
-button:not(.delete):not(.edit) {
-  background: #90caf9;
-  color: #fff;
+button:hover {
+  background: linear-gradient(90deg, #f8bbd0 0%, #b3c7e6 100%);
+  /* rosa pastel para azul pastel */
+  color: #4e342e;
 }
 
-button:hover:not(.delete):not(.edit) {
-  background: #64b5f6;
+/* Estilo primário */
+.btn-primary {
+  background: #b3c7e6;
+  /* azul pastel */
+  color: #6d4c41;
 }
 
-button.delete {
+.btn-primary:hover {
   background: #f8bbd0;
-  color: #880e4f;
+  /* rosa pastel */
+  color: #4e342e;
 }
 
-button.delete:hover {
-  background: #f48fb1;
+/* Estilo secundário */
+.btn-secondary {
+  background: #ffe0b2;
+  /* marrom pastel claro */
+  color: #6d4c41;
 }
 
+.btn-secondary:hover {
+  background: #b3c7e6;
+  /* azul pastel */
+  color: #4e342e;
+}
+
+/* Botão de editar */
 button.edit {
-  background: #fff9c4;
-  color: #795548;
-  margin-right: 8px; /* Espaço entre os botões */
+  background: #b3c7e6;
+  color: #6d4c41;
 }
 
 button.edit:hover {
-  background: #fff59d;
+  background: #f8bbd0;
+  color: #4e342e;
 }
 
-.error, .success {
-  margin: 16px 0;
+/* Botão de excluir */
+button.delete {
+  background: #f8bbd0;
+  color: #6d4c41;
+}
+
+button.delete:hover {
+  background: #b3c7e6;
+  color: #4e342e;
+}
+
+/* Logout */
+.logout-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+/* Mensagens de erro e sucesso */
+.error,
+.success {
+  margin-top: 16px;
   padding: 14px;
   border-radius: 12px;
   font-weight: 500;
+  text-align: center;
 }
 
 .error {
-  background: #fdecea;
+  background: #ffe0e6;
+  /* rosa pastel claro */
   color: #c62828;
 }
 
 .success {
-  background: #e0f7fa;
+  background: #e3f2fd;
+  /* azul pastel claro */
   color: #00796b;
 }
 
-@media (max-width: 700px) {
-  .container {
-    padding: 20px;
-  }
-
-  table, .form-row {
-    font-size: 15px;
-  }
-
-  h1 {
-    font-size: 1.75rem;
-  }
-}
-
-@media (max-width: 500px) {
-  body {
-    padding: 20px;
-  }
-
-  h1 {
-    font-size: 1.5rem;
-  }
-
-  .container {
-    width: 100%;
-  }
-
-  table, .form-row {
-    font-size: 14px;
-  }
-}
-
-/* Card de login */
+/* Login card */
 .login-container {
   max-width: 400px;
   width: 100%;
-  background: #fff;
+  background: #fffaf7;
   padding: 32px;
   border-radius: 20px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   text-align: center;
-  box-sizing: border-box;
 }
 
-/* Título opcional */
 .login-container h2 {
-  color: #ab47bc;
   font-size: 1.75rem;
+  color: #a1887f;
+  /* marrom pastel */
   margin-bottom: 24px;
   font-weight: 600;
 }
 
-/* Inputs alinhados */
 .login-container input {
   width: 100%;
   padding: 14px;
   margin-bottom: 16px;
-  border: 1px solid #e1bee7;
+  border: 1px solid #b3c7e6;
   border-radius: 12px;
-  background: #fdf6fb;
+  background: #fdf3f7;
   font-size: 15px;
-  box-sizing: border-box;
+  color: #7c6654;
 }
 
-/* Botão estilizado */
 .login-container button {
   width: 100%;
-  padding: 14px;
-  background: #ba68c8;
-  color: #fff;
+  height: 44px;
+  background: linear-gradient(90deg, #b3c7e6 0%, #ffe0b2 100%);
+  color: #6d4c41;
   border: none;
   border-radius: 12px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .login-container button:hover {
-  background: #ab47bc;
+  background: linear-gradient(90deg, #f8bbd0 0%, #b3c7e6 100%);
+  color: #4e342e;
 }
 
-/* Mensagem de erro */
+.login-container button:active {
+  background: #ffe0b2;
+  color: #7b1fa2;
+}
+
 .login-error {
   color: #c62828;
   margin-bottom: 12px;
@@ -215,11 +248,23 @@ button.edit:hover {
   min-height: 24px;
 }
 
-.logout-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 24px;
-  border: none;
-  border-radius: 16px;
-}
+/* Responsivo */
+@media (max-width: 700px) {
+  .container {
+    padding: 20px;
+  }
 
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+
+  table,
+  .form-row,
+  input {
+    font-size: 14px;
+  }
+}
