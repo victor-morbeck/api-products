@@ -1,14 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const isLoginPage = window.location.pathname.endsWith('login.html');
-  const isListaPage = window.location.pathname.endsWith('lista.html');
-  const isIndexPage = window.location.pathname.endsWith('index.html');
+  const path = window.location.pathname;
+  const isLoginPage = path.endsWith('login.html');
+  const isListaPage = path.endsWith('lista.html');
+  const isIndexPage = path.endsWith('index.html');
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
 
-  // Redirecionamento de autenticação
   if (!isLoginPage && !isLoggedIn) {
     window.location.href = 'login.html';
     return;
   }
+
   if (isLoginPage && isLoggedIn) {
     window.location.href = 'index.html';
     return;
@@ -16,14 +17,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (isLoginPage) {
     handleLogin();
-  } else if (isIndexPage) {
-    initProductScreen();
-    handleStockQueryBtn();
+  } else {
     handleLogoutBtn();
-  } else if (isListaPage) {
-    initListaScreen();
-    handleVoltarBtn();
-    handleLogoutBtn();
+    if (isIndexPage) {
+      initProductScreen();
+      handleStockQueryBtn();
+    } else if (isListaPage) {
+      initListaScreen();
+      handleVoltarBtn();
+    }
   }
 });
 
@@ -31,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function handleLogin() {
   const loginForm = document.getElementById('loginForm');
   const errorDiv = document.getElementById('loginError');
+
   if (!loginForm) return;
 
   loginForm.addEventListener('submit', (e) => {
@@ -47,7 +50,7 @@ function handleLogin() {
   });
 }
 
-// --- INDEX (ADICIONAR PRODUTO) ---
+// --- PRODUTOS (INDEX.HTML) ---
 function initProductScreen() {
   const apiUrl = 'http://localhost:3000/products';
   const productForm = document.getElementById('productForm');
@@ -56,7 +59,8 @@ function initProductScreen() {
   const messageDiv = document.getElementById('message');
   let editingId = null;
 
-  // Recupera dados de edição, se houver
+  if (!productForm) return;
+
   const editingProduct = localStorage.getItem('editingProduct');
   if (editingProduct) {
     const { id, name, price } = JSON.parse(editingProduct);
@@ -65,11 +69,7 @@ function initProductScreen() {
     editingId = id;
     productForm.querySelector('button[type="submit"]').textContent = 'Atualizar';
     localStorage.removeItem('editingProduct');
-  } else {
-    productForm.querySelector('button[type="submit"]').textContent = 'Add Product';
   }
-
-  if (!productForm) return;
 
   productForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -90,18 +90,14 @@ function initProductScreen() {
       body: JSON.stringify({ name, price })
     })
       .then(async (res) => {
+        const data = await res.json();
         if (res.ok) {
+          showMessage(editingId ? 'Produto atualizado!' : 'Produto adicionado!');
           productForm.reset();
           editingId = null;
           productForm.querySelector('button[type="submit"]').textContent = 'Add Product';
-          // Se estava editando, volta para lista
-          if (method === 'PUT') {
-            window.location.href = 'lista.html';
-          } else {
-            fetchProducts && fetchProducts();
-          }
+          window.location.href = 'lista.html';
         } else {
-          const data = await res.json();
           showMessage((data.errors && data.errors.join(', ')) || data.error, 'error');
         }
       });
@@ -114,7 +110,7 @@ function initProductScreen() {
   }
 }
 
-// --- LISTA (MOSTRAR PRODUTOS) ---
+// --- LISTA (LISTA.HTML) ---
 function initListaScreen() {
   const apiUrl = 'http://localhost:3000/products';
   const productTable = document.getElementById('productTable');
@@ -123,75 +119,87 @@ function initListaScreen() {
   fetch(apiUrl)
     .then((res) => res.json())
     .then((products) => {
-      productTable.innerHTML = products.map(product => `
-      <tr>
-        <td>${product.id}</td>
-        <td>${product.name}</td>
-        <td>R$ ${product.price.toFixed(2)}</td>
-        <td>${product.quantity !== undefined ? product.quantity : '-'}</td>
-        <td>
-          <div class="action-buttons">
-            <button class="edit" onclick="editProduct(${product.id}, '${product.name}', ${product.price})">Editar</button>
-            <button class="delete" onclick="deleteProduct(${product.id})">Excluir</button>
-          </div>
-        </td>
-      </tr>
-    `).join('');
+      const grouped = {};
+      products.forEach(product => {
+        const key = product.name;
+        if (grouped[key]) {
+          grouped[key].quantity += product.quantity || 1;
+        } else {
+          grouped[key] = {
+            ...product,
+            quantity: product.quantity || 1
+          };
+        }
+      });
+
+      productTable.innerHTML = Object.values(grouped).map(product => `
+        <tr>
+          <td>${product.id}</td>
+          <td>${product.name}</td>
+          <td>R$ ${product.price.toFixed(2)}</td>
+          <td>${product.quantity}</td>
+          <td>
+            <div class="action-buttons">
+              <button class="edit" onclick="editProduct(${product.id}, '${product.name}', ${product.price})">Editar</button>
+              <button class="delete" onclick="deleteProduct(${product.id})">Excluir</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
     });
 }
 
-// --- BOTÃO STOCK QUERY ---
+// --- BOTÃO CONSULTAR (INDEX) ---
 function handleStockQueryBtn() {
-  const stockQueryBtn = document.getElementById('stockQueryBtn');
-  if (stockQueryBtn) {
-    stockQueryBtn.addEventListener('click', () => {
+  const btn = document.getElementById('stockQueryBtn');
+  if (btn) {
+    btn.addEventListener('click', () => {
       window.location.href = 'lista.html';
     });
   }
 }
 
-// --- BOTÃO VOLTAR ---
+// --- BOTÃO VOLTAR (LISTA) ---
 function handleVoltarBtn() {
-  const voltarBtn = document.getElementById('voltar-para-add');
-  if (voltarBtn) {
-    voltarBtn.addEventListener('click', () => {
+  const btn = document.getElementById('voltar-para-add');
+  if (btn) {
+    btn.addEventListener('click', () => {
       window.location.href = 'index.html';
     });
   }
 }
 
-// --- BOTÃO LOGOUT ---
+// --- BOTÃO LOGOUT (AMBOS) ---
 function handleLogoutBtn() {
-  const logoutBtn = document.getElementById('logoutButton');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
+  const btn = document.getElementById('logoutButton');
+  if (btn) {
+    btn.addEventListener('click', () => {
       localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('token');
       window.location.href = 'login.html';
     });
   }
-
-  // --- BOTÃO DELET ---
-  window.deleteProduct = function (id) {
-    if (!confirm('Tem certeza que deseja excluir este produto?')) return;
-
-    const apiUrl = 'http://localhost:3000/products';
-    fetch(`${apiUrl}/${id}`, { method: 'DELETE' })
-      .then(res => {
-        if (res.status === 204) {
-          // Atualiza a lista após excluir
-          if (typeof initListaScreen === 'function') {
-            initListaScreen();
-          }
-        } else {
-          res.json().then(data => alert(data.error || 'Erro ao excluir'));
-        }
-      });
-  };
-
-  window.editProduct = function (id, name, price) {
-    localStorage.setItem('editingProduct', JSON.stringify({ id, name, price }));
-    window.location.href = 'index.html';
-  };
-
-  fetchProducts();
 }
+
+// --- FUNÇÕES GLOBAIS (EDITAR/EXCLUIR) ---
+window.deleteProduct = function (id) {
+  if (!confirm('Tem certeza que deseja excluir este produto?')) return;
+
+  const apiUrl = 'http://localhost:3000/products';
+  fetch(`${apiUrl}/${id}`, { method: 'DELETE' })
+    .then(res => {
+      if (res.status === 204) {
+        if (window.location.pathname.endsWith('lista.html')) {
+          initListaScreen(); // atualiza lista
+        }
+      } else {
+        res.json().then(data => alert(data.error || 'Erro ao excluir produto.'));
+      }
+    });
+};
+
+window.editProduct = function (id, name, price) {
+  localStorage.setItem('editingProduct', JSON.stringify({ id, name, price }));
+  window.location.href = 'index.html';
+};
+// 
