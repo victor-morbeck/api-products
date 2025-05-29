@@ -41,12 +41,24 @@ function handleLogin() {
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
 
-    if (username === 'admin' && password === '1234') {
-      localStorage.setItem('isLoggedIn', 'true');
-      window.location.href = 'index.html';
-    } else {
-      errorDiv.textContent = 'Usuário ou senha inválidos.';
-    }
+    fetch('http://localhost:3000/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    })
+      .then(async (res) => {
+        if (res.ok) {
+          // Exemplo: salva token ou status de login
+          localStorage.setItem('isLoggedIn', 'true');
+          window.location.href = 'index.html';
+        } else {
+          const data = await res.json();
+          errorDiv.textContent = data.error || 'Usuário ou senha inválidos.';
+        }
+      })
+      .catch(() => {
+        errorDiv.textContent = 'Erro ao conectar ao servidor.';
+      });
   });
 }
 
