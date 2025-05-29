@@ -138,5 +138,19 @@ function initProductScreen() {
     });
   }
 
+  document.addEventListener('DOMContentLoaded', () => {
+    // ...existing code...
+
+    // Lógica para o botão Stock Query
+    const stockQueryBtn = document.getElementById('stockQueryBtn');
+    if (stockQueryBtn) {
+      stockQueryBtn.addEventListener('click', () => {
+        window.location.href = 'stock-list.html';
+      });
+    }
+
+    // ...existing code...
+  });
+
   fetchProducts();
 }
