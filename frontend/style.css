@@ -267,4 +267,10 @@ button.delete:hover {
   input {
     font-size: 14px;
   }
+  
+}
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
 }

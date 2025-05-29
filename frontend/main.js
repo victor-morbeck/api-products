@@ -56,6 +56,19 @@ function initProductScreen() {
   const messageDiv = document.getElementById('message');
   let editingId = null;
 
+  // Recupera dados de edição, se houver
+  const editingProduct = localStorage.getItem('editingProduct');
+  if (editingProduct) {
+    const { id, name, price } = JSON.parse(editingProduct);
+    nameInput.value = name;
+    priceInput.value = price;
+    editingId = id;
+    productForm.querySelector('button[type="submit"]').textContent = 'Atualizar';
+    localStorage.removeItem('editingProduct');
+  } else {
+    productForm.querySelector('button[type="submit"]').textContent = 'Add Product';
+  }
+
   if (!productForm) return;
 
   productForm.addEventListener('submit', (e) => {
@@ -81,8 +94,12 @@ function initProductScreen() {
           productForm.reset();
           editingId = null;
           productForm.querySelector('button[type="submit"]').textContent = 'Add Product';
-          // Redireciona para lista.html após adicionar
-         // window.location.href = 'lista.html';
+          // Se estava editando, volta para lista
+          if (method === 'PUT') {
+            window.location.href = 'lista.html';
+          } else {
+            fetchProducts && fetchProducts();
+          }
         } else {
           const data = await res.json();
           showMessage((data.errors && data.errors.join(', ')) || data.error, 'error');
@@ -107,16 +124,19 @@ function initListaScreen() {
     .then((res) => res.json())
     .then((products) => {
       productTable.innerHTML = products.map(product => `
-        <tr>
-          <td>${product.id}</td>
-          <td>${product.name}</td>
-          <td>R$ ${product.price.toFixed(2)}</td>
-          <td>${product.quantity !== undefined ? product.quantity : '-'}</td>
-          <td>
-            <!-- Ações podem ser adicionadas aqui -->
-          </td>
-        </tr>
-      `).join('');
+      <tr>
+        <td>${product.id}</td>
+        <td>${product.name}</td>
+        <td>R$ ${product.price.toFixed(2)}</td>
+        <td>${product.quantity !== undefined ? product.quantity : '-'}</td>
+        <td>
+          <div class="action-buttons">
+            <button class="edit" onclick="editProduct(${product.id}, '${product.name}', ${product.price})">Editar</button>
+            <button class="delete" onclick="deleteProduct(${product.id})">Excluir</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
     });
 }
 
@@ -149,6 +169,29 @@ function handleLogoutBtn() {
       window.location.href = 'login.html';
     });
   }
+
+  // --- BOTÃO DELET ---
+  window.deleteProduct = function (id) {
+    if (!confirm('Tem certeza que deseja excluir este produto?')) return;
+
+    const apiUrl = 'http://localhost:3000/products';
+    fetch(`${apiUrl}/${id}`, { method: 'DELETE' })
+      .then(res => {
+        if (res.status === 204) {
+          // Atualiza a lista após excluir
+          if (typeof initListaScreen === 'function') {
+            initListaScreen();
+          }
+        } else {
+          res.json().then(data => alert(data.error || 'Erro ao excluir'));
+        }
+      });
+  };
+
+  window.editProduct = function (id, name, price) {
+    localStorage.setItem('editingProduct', JSON.stringify({ id, name, price }));
+    window.location.href = 'index.html';
+  };
 
   fetchProducts();
 }
