@@ -41,6 +41,14 @@ function handleLogin() {
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
 
+    // Login genérico local
+    if (username === 'admin' && password === '1234') {
+      localStorage.setItem('isLoggedIn', 'true');
+      window.location.href = 'index.html';
+      return;
+    }
+
+    // Se não for o genérico, tenta no backend
     fetch('http://localhost:3000/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -48,7 +56,6 @@ function handleLogin() {
     })
       .then(async (res) => {
         if (res.ok) {
-          // Exemplo: salva token ou status de login
           localStorage.setItem('isLoggedIn', 'true');
           window.location.href = 'index.html';
         } else {
@@ -108,7 +115,7 @@ function initProductScreen() {
           productForm.reset();
           editingId = null;
           productForm.querySelector('button[type="submit"]').textContent = 'Add Product';
-          window.location.href = 'lista.html';
+          //window.location.href = 'lista.html';
         } else {
           showMessage((data.errors && data.errors.join(', ')) || data.error, 'error');
         }
@@ -214,4 +221,3 @@ window.editProduct = function (id, name, price) {
   localStorage.setItem('editingProduct', JSON.stringify({ id, name, price }));
   window.location.href = 'index.html';
 };
-// 
