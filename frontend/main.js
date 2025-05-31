@@ -109,7 +109,12 @@ function initProductScreen() {
       body: JSON.stringify({ name, price })
     })
       .then(async (res) => {
-        const data = await res.json();
+        let data = {};
+        try {
+          data = await res.json();
+        } catch (e) {
+          // Se não houver corpo, ignora o erro
+        }
         if (res.ok) {
           showMessage(editingId ? 'Produto atualizado!' : 'Produto adicionado!');
           productForm.reset();
@@ -117,7 +122,7 @@ function initProductScreen() {
           productForm.querySelector('button[type="submit"]').textContent = 'Add Product';
           //window.location.href = 'lista.html';
         } else {
-          showMessage((data.errors && data.errors.join(', ')) || data.error, 'error');
+          showMessage((data.errors && data.errors.join(', ')) || data.error || 'Erro ao adicionar produto.', 'error');
         }
       });
   });
