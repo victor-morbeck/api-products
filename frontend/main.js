@@ -106,11 +106,10 @@ function initProductScreen() {
 
   if (!productForm) return;
 
-  // Adiciona validação em tempo real para os campos de produto
   [nameInput, priceInput].forEach(input => {
     input.addEventListener('input', () => {
       if (input.value.trim()) {
-        input.classList.remove('invalid-input');
+        input.classList.remove('invalid-input', 'invalid-format', 'invalid-length', 'invalid-range');
         if (messageDiv) messageDiv.innerHTML = '';
       }
     });
@@ -129,25 +128,57 @@ function initProductScreen() {
   productForm.addEventListener('submit', (e) => {
     e.preventDefault();
     let isValid = true;
-
-    // Validação dos campos com bordas vermelhas
-    if (!nameInput.value.trim()) {
-      nameInput.classList.add('invalid-input');
-      isValid = false;
-    }
-
-    if (!priceInput.value.trim() || isNaN(parseFloat(priceInput.value))) {
-      priceInput.classList.add('invalid-input');
-      isValid = false;
-    }
-
-    if (!isValid) {
-      showMessage('Preencha todos os campos corretamente.', 'error');
-      return;
-    }
-
     const name = nameInput.value.trim();
-    const price = parseFloat(priceInput.value);
+    const priceStr = priceInput.value.trim();
+    const price = parseFloat(priceStr);
+
+    // Reset de estilos
+    nameInput.classList.remove('invalid-input', 'invalid-format', 'invalid-length');
+    priceInput.classList.remove('invalid-input', 'invalid-format', 'invalid-range');
+
+    // Validação do nome
+    if (!name) {
+      nameInput.classList.add('invalid-input');
+      showMessage('O nome do produto é obrigatório.', 'error');
+      isValid = false;
+    } else if (name.length < 3) {
+      nameInput.classList.add('invalid-length');
+      showMessage('O nome deve ter pelo menos 3 caracteres.', 'error');
+      isValid = false;
+    } else if (name.length > 50) {
+      nameInput.classList.add('invalid-length');
+      showMessage('O nome não pode exceder 50 caracteres.', 'error');
+      isValid = false;
+    } else if (/^\d+$/.test(name)) {
+      nameInput.classList.add('invalid-format');
+      showMessage('O nome não pode conter apenas números.', 'error');
+      isValid = false;
+    }
+
+    // Validação do preço
+    if (!priceStr) {
+      priceInput.classList.add('invalid-input');
+      showMessage('O preço é obrigatório.', 'error');
+      isValid = false;
+    } else if (isNaN(price)) {
+      priceInput.classList.add('invalid-format');
+      showMessage('Digite um valor numérico válido.', 'error');
+      isValid = false;
+    } else if (price < 0.1) {
+      priceInput.classList.add('invalid-range');
+      showMessage('O valor mínimo é R$ 0,10.', 'error');
+      isValid = false;
+    } else if (price > 10000) {
+      priceInput.classList.add('invalid-range');
+      showMessage('O valor máximo é R$ 10.000,00.', 'error');
+      isValid = false;
+    } else if (!/^\d+(\.\d{1,2})?$/.test(priceStr)) {
+      priceInput.classList.add('invalid-format');
+      showMessage('Use no máximo 2 casas decimais.', 'error');
+      isValid = false;
+    }
+
+    if (!isValid) return;
 
     const method = editingId ? 'PUT' : 'POST';
     const url = editingId ? `${apiUrl}/${editingId}` : apiUrl;
