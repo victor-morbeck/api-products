@@ -51,7 +51,6 @@ function handleLogin() {
     e.preventDefault();
     let isValid = true;
 
-    // Validação dos campos
     if (!usernameInput.value.trim()) {
       usernameInput.classList.add('invalid-input');
       isValid = false;
@@ -70,14 +69,12 @@ function handleLogin() {
     const username = usernameInput.value.trim();
     const password = passwordInput.value.trim();
 
-    // Login genérico local
     if (username === 'admin' && password === '1234') {
       localStorage.setItem('isLoggedIn', 'true');
       window.location.href = 'index.html';
       return;
     }
 
-    // Se não for o genérico, tenta no backend
     fetch('http://localhost:3000/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -109,6 +106,16 @@ function initProductScreen() {
 
   if (!productForm) return;
 
+  // Adiciona validação em tempo real para os campos de produto
+  [nameInput, priceInput].forEach(input => {
+    input.addEventListener('input', () => {
+      if (input.value.trim()) {
+        input.classList.remove('invalid-input');
+        if (messageDiv) messageDiv.innerHTML = '';
+      }
+    });
+  });
+
   const editingProduct = localStorage.getItem('editingProduct');
   if (editingProduct) {
     const { id, name, price } = JSON.parse(editingProduct);
@@ -121,13 +128,26 @@ function initProductScreen() {
 
   productForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const name = nameInput.value.trim();
-    const price = parseFloat(priceInput.value);
+    let isValid = true;
 
-    if (!name || isNaN(price)) {
+    // Validação dos campos com bordas vermelhas
+    if (!nameInput.value.trim()) {
+      nameInput.classList.add('invalid-input');
+      isValid = false;
+    }
+
+    if (!priceInput.value.trim() || isNaN(parseFloat(priceInput.value))) {
+      priceInput.classList.add('invalid-input');
+      isValid = false;
+    }
+
+    if (!isValid) {
       showMessage('Preencha todos os campos corretamente.', 'error');
       return;
     }
+
+    const name = nameInput.value.trim();
+    const price = parseFloat(priceInput.value);
 
     const method = editingId ? 'PUT' : 'POST';
     const url = editingId ? `${apiUrl}/${editingId}` : apiUrl;
@@ -141,9 +161,8 @@ function initProductScreen() {
         let data = {};
         try {
           data = await res.json();
-        } catch (e) {
-          // Se não houver corpo, ignora o erro
-        }
+        } catch (e) {}
+        
         if (res.ok) {
           showMessage(editingId ? 'Produto atualizado!' : 'Produto adicionado!');
           productForm.reset();
@@ -242,7 +261,7 @@ window.deleteProduct = function (id) {
     .then(res => {
       if (res.status === 204) {
         if (window.location.pathname.endsWith('lista.html')) {
-          initListaScreen(); // atualiza lista
+          initListaScreen();
         }
       } else {
         res.json().then(data => alert(data.error || 'Erro ao excluir produto.'));
