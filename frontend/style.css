@@ -179,7 +179,7 @@ button.delete:active,
 .login-container h2 {
   font-size: 1.75rem;
   color: #a1887f;
-  margin-bottom: 24px;
+  margin-bottom: 10px;
   font-weight: 600;
 }
 
@@ -196,7 +196,6 @@ button.delete:active,
 
 .login-error {
   color: #c62828;
-  margin-bottom: 12px;
   font-weight: 500;
   min-height: 24px;
 }
@@ -226,4 +225,31 @@ button.delete:active,
   display: flex;
   gap: 8px;
   justify-content: center;
+}
+
+.login-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 10px;   /* fonte pequena */
+  background: none;  /* sem fundo, se preferir */
+  background: #f8bbd0;      /* rosa pastel suave */
+  color: #6d4c41;           /* marrom pastel */
+  border-radius: 10px;
+  padding: 10px 0 14px 0;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+.info-icon {
+  font-size: 15px;
+  color: #6d4c41;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s;
+}
+
+.info-icon:hover {
+  color: #a1887f;           /* marrom pastel claro */
 }

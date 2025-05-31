@@ -221,3 +221,10 @@ window.editProduct = function (id, name, price) {
   localStorage.setItem('editingProduct', JSON.stringify({ id, name, price }));
   window.location.href = 'index.html';
 };
+
+const infoIcon = document.getElementById('infoIcon');
+if (infoIcon) {
+  infoIcon.addEventListener('mouseenter', () => {
+    alert('Usuário: admin\nSenha: 1234');
+  });
+}
