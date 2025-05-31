@@ -242,6 +242,19 @@ button.delete:active,
   font-size: 15px;
 }
 
+/* mensagem de erro vidual no forms de login */
+
+.invalid-input {
+  border: 2px solid #ff4444 !important;
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+
 .info-icon {
   font-size: 15px;
   color: #6d4c41;

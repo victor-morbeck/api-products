@@ -33,13 +33,42 @@ document.addEventListener('DOMContentLoaded', () => {
 function handleLogin() {
   const loginForm = document.getElementById('loginForm');
   const errorDiv = document.getElementById('loginError');
+  const usernameInput = document.getElementById('username');
+  const passwordInput = document.getElementById('password');
 
   if (!loginForm) return;
 
+  [usernameInput, passwordInput].forEach(input => {
+    input.addEventListener('input', () => {
+      if (input.value.trim()) {
+        input.classList.remove('invalid-input');
+        errorDiv.textContent = '';
+      }
+    });
+  });
+
   loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value.trim();
+    let isValid = true;
+
+    // Validação dos campos
+    if (!usernameInput.value.trim()) {
+      usernameInput.classList.add('invalid-input');
+      isValid = false;
+    }
+
+    if (!passwordInput.value.trim()) {
+      passwordInput.classList.add('invalid-input');
+      isValid = false;
+    }
+
+    if (!isValid) {
+      errorDiv.textContent = 'Preencha todos os campos!';
+      return;
+    }
+
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value.trim();
 
     // Login genérico local
     if (username === 'admin' && password === '1234') {
@@ -120,7 +149,6 @@ function initProductScreen() {
           productForm.reset();
           editingId = null;
           productForm.querySelector('button[type="submit"]').textContent = 'Add Product';
-          //window.location.href = 'lista.html';
         } else {
           showMessage((data.errors && data.errors.join(', ')) || data.error || 'Erro ao adicionar produto.', 'error');
         }
@@ -227,6 +255,7 @@ window.editProduct = function (id, name, price) {
   window.location.href = 'index.html';
 };
 
+// --- INFO ICON ---
 const infoIcon = document.getElementById('infoIcon');
 if (infoIcon) {
   infoIcon.addEventListener('mouseenter', () => {
