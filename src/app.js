@@ -17,7 +17,7 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 // 2. Definir a rota principal (/) para enviar o index.html
 // Quando alguém acessa http://localhost:3000/, esta função será executada e enviará o index.html.
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname,'../frontend', 'index.html'));
+  res.sendFile(path.join(__dirname, '../frontend', 'login.html'));
 });
 
 // --- FIM DA PARTE NOVA ---
