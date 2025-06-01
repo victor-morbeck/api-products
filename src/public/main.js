@@ -97,7 +97,7 @@ function handleLogin() {
 
 // --- PRODUTOS (INDEX.HTML) ---
 function initProductScreen() {
-  const apiUrl = 'http://localhost:3000/products';
+  const apiUrl = '/api/products';
   const productForm = document.getElementById('productForm');
   const nameInput = document.getElementById('name');
   const priceInput = document.getElementById('price');
