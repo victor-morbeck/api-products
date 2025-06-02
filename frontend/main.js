@@ -75,7 +75,7 @@ function handleLogin() {
       return;
     }
 
-    fetch('http://localhost:3000/login', {
+    fetch('api-products-backend-production.up.railway.app', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
@@ -214,7 +214,7 @@ function initProductScreen() {
 
 // --- LISTA (LISTA.HTML) ---
 function initListaScreen() {
-  const apiUrl = 'http://localhost:3000/products';
+  const apiUrl = 'api-products-backend-production.up.railway.app';
   const productTable = document.getElementById('productTable');
   if (!productTable) return;
 
@@ -287,7 +287,7 @@ function handleLogoutBtn() {
 window.deleteProduct = function (id) {
   if (!confirm('Tem certeza que deseja excluir este produto?')) return;
 
-  const apiUrl = 'http://localhost:3000/products';
+  const apiUrl = 'api-products-backend-production.up.railway.app';
   fetch(`${apiUrl}/${id}`, { method: 'DELETE' })
     .then(res => {
       if (res.status === 204) {
