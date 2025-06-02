@@ -1,6 +1,4 @@
-const BASE_BACKEND_URL = 'http://api-products-backend-production.up.railway.app';
-
-// --- Funções de UI para Modals (Substituindo alert/confirm) ---
+const BASE_BACKEND_URL = 'https://api-products-backend-production.up.railway.app';
 function showCustomMessage(message, type = 'success') {
     const messageDiv = document.getElementById('globalMessage'); // Certifique-se de ter uma div com id="globalMessage" no seu HTML
     if (!messageDiv) {
