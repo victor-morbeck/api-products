@@ -1,4 +1,23 @@
-const BASE_BACKEND_URL = 'http://api-products-backend-production.up.railway.app';
+// main.js - Frontend JavaScript (Autônomo)
+
+// --- Funções Auxiliares para LocalStorage ---
+const STORAGE_KEY_PRODUCTS = 'products';
+const STORAGE_KEY_NEXT_ID = 'nextProductId';
+
+function getProductsFromLocalStorage() {
+    const productsJson = localStorage.getItem(STORAGE_KEY_PRODUCTS);
+    return productsJson ? JSON.parse(productsJson) : [];
+}
+
+function saveProductsToLocalStorage(products) {
+    localStorage.setItem(STORAGE_KEY_PRODUCTS, JSON.stringify(products));
+}
+
+function getNextProductId() {
+    let nextId = parseInt(localStorage.getItem(STORAGE_KEY_NEXT_ID) || '1');
+    localStorage.setItem(STORAGE_KEY_NEXT_ID, (nextId + 1).toString());
+    return nextId;
+}
 
 // --- Funções de UI para Modals (Substituindo alert/confirm) ---
 function showCustomMessage(message, type = 'success') {
@@ -130,32 +149,14 @@ function handleLogin() {
         const username = usernameInput.value.trim();
         const password = passwordInput.value.trim();
 
-        // Lógica de login hardcoded para 'admin' e '1234' (para fins de demonstração)
-        // Esta lógica deve corresponder ao seu backend.
+        // Lógica de login AUTÔNOMA (sem backend)
+        // Apenas para fins de demonstração na faculdade
         if (username === 'admin' && password === '1234') {
             localStorage.setItem('isLoggedIn', 'true');
             window.location.href = 'index.html';
-            return;
+        } else {
+            errorDiv.textContent = 'Usuário ou senha inválidos.';
         }
-
-        // Requisição ao backend para login
-        fetch(`${BASE_BACKEND_URL}/login`, { // Endpoint de login ajustado
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        })
-        .then(async (res) => {
-            if (res.ok) {
-                localStorage.setItem('isLoggedIn', 'true');
-                window.location.href = 'index.html';
-            } else {
-                const data = await res.json();
-                errorDiv.textContent = data.error || 'Usuário ou senha inválidos.';
-            }
-        })
-        .catch(() => {
-            errorDiv.textContent = 'Erro ao conectar ao servidor. Verifique a URL do backend ou sua conexão.';
-        });
     });
 }
 
@@ -245,34 +246,32 @@ function initProductScreen() {
 
         if (!isValid) return;
 
-        const method = editingId ? 'PUT' : 'POST';
-        const url = editingId ? `${BASE_BACKEND_URL}/products/${editingId}` : `${BASE_BACKEND_URL}/products`;
+        // Lógica de manipulação de produtos com localStorage
+        let products = getProductsFromLocalStorage();
+        let product;
 
-        fetch(url, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, price })
-        })
-        .then(async (res) => {
-            let data = {};
-            try {
-                data = await res.json();
-            } catch (e) {
-                // Ignora erro se a resposta não for JSON (ex: 204 No Content)
-            }
-
-            if (res.ok) {
-                showMessage(editingId ? 'Produto atualizado com sucesso!' : 'Produto adicionado com sucesso!');
-                productForm.reset();
-                editingId = null;
-                productForm.querySelector('button[type="submit"]').textContent = 'Adicionar Produto';
+        if (editingId) {
+            // Atualizar produto existente
+            product = products.find(p => p.id === editingId);
+            if (product) {
+                product.name = name;
+                product.price = price;
+                showMessage('Produto atualizado com sucesso!');
             } else {
-                showMessage((data.errors && data.errors.join(', ')) || data.error || 'Erro ao processar produto.', 'error');
+                showMessage('Erro: Produto não encontrado para atualização.', 'error');
+                return;
             }
-        })
-        .catch(() => {
-            showMessage('Erro de conexão com o servidor. Verifique a URL do backend.', 'error');
-        });
+        } else {
+            // Adicionar novo produto
+            product = { id: getNextProductId(), name, price, quantity: 1 }; // Assume quantidade 1 para novos produtos
+            products.push(product);
+            showMessage('Produto adicionado com sucesso!');
+        }
+
+        saveProductsToLocalStorage(products); // Salva a lista atualizada
+        productForm.reset();
+        editingId = null;
+        productForm.querySelector('button[type="submit"]').textContent = 'Adicionar Produto';
     });
 
     // Função para exibir mensagens específicas do formulário
@@ -288,49 +287,40 @@ function initListaScreen() {
     const productTable = document.getElementById('productTable');
     if (!productTable) return;
 
-    fetch(`${BASE_BACKEND_URL}/products`) // URL ajustada
-        .then((res) => {
-            if (!res.ok) {
-                throw new Error('Erro ao carregar produtos.');
-            }
-            return res.json();
-        })
-        .then((products) => {
-            const grouped = {};
-            products.forEach(product => {
-                const key = product.name; // Agrupa por nome
-                if (grouped[key]) {
-                    // Se o produto já existe, incrementa a quantidade.
-                    // Se o backend não retornar 'quantity', assume 1 por item.
-                    grouped[key].quantity = (grouped[key].quantity || 1) + (product.quantity || 1);
-                } else {
-                    // Cria uma nova entrada para o produto
-                    grouped[key] = {
-                        ...product,
-                        quantity: product.quantity || 1 // Define a quantidade inicial como 1 se não for fornecida
-                    };
-                }
-            });
+    const products = getProductsFromLocalStorage(); // Obtém os produtos do localStorage
 
-            // Constrói a tabela com os produtos agrupados
-            productTable.innerHTML = Object.values(grouped).map(product => `
-                <tr>
-                    <td>${product.id}</td>
-                    <td>${product.name}</td>
-                    <td>R$ ${product.price.toFixed(2)}</td>
-                    <td>${product.quantity}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="edit" onclick="editProduct(${product.id}, '${product.name}', ${product.price})">Editar</button>
-                            <button class="delete" onclick="deleteProduct(${product.id})">Excluir</button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-        })
-        .catch((error) => {
-            showCustomMessage(`Erro ao carregar lista de produtos: ${error.message}`, 'error');
-        });
+    const grouped = {};
+    products.forEach(product => {
+        const key = product.name; // Agrupa por nome
+        if (grouped[key]) {
+            grouped[key].quantity = (grouped[key].quantity || 1) + (product.quantity || 1);
+        } else {
+            grouped[key] = {
+                ...product,
+                quantity: product.quantity || 1 // Define a quantidade inicial como 1 se não for fornecida
+            };
+        }
+    });
+
+    // Constrói a tabela com os produtos agrupados
+    if (Object.values(grouped).length === 0) {
+        productTable.innerHTML = `<tr><td colspan="5">Nenhum produto cadastrado.</td></tr>`;
+    } else {
+        productTable.innerHTML = Object.values(grouped).map(product => `
+            <tr>
+                <td>${product.id}</td>
+                <td>${product.name}</td>
+                <td>R$ ${product.price.toFixed(2)}</td>
+                <td>${product.quantity}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="edit" onclick="editProduct(${product.id}, '${product.name}', ${product.price})">Editar</button>
+                        <button class="delete" onclick="deleteProduct(${product.id})">Excluir</button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
 }
 
 // --- BOTÃO CONSULTAR (INDEX) ---
@@ -359,7 +349,9 @@ function handleLogoutBtn() {
     if (btn) {
         btn.addEventListener('click', () => {
             localStorage.removeItem('isLoggedIn');
-            localStorage.removeItem('token'); // Se você usar um token no futuro
+            // Você pode limpar outros dados do localStorage aqui, se desejar
+            // localStorage.removeItem(STORAGE_KEY_PRODUCTS);
+            // localStorage.removeItem(STORAGE_KEY_NEXT_ID);
             window.location.href = 'login.html';
         });
     }
@@ -370,21 +362,19 @@ window.deleteProduct = function (id) {
     showCustomConfirm('Tem certeza que deseja excluir este produto?', (confirmed) => {
         if (!confirmed) return;
 
-        fetch(`${BASE_BACKEND_URL}/products/${id}`, { method: 'DELETE' }) // URL ajustada
-            .then(res => {
-                if (res.status === 204) { // 204 No Content para deleção bem-sucedida
-                    showCustomMessage('Produto excluído com sucesso!');
-                    if (window.location.pathname.endsWith('lista.html')) {
-                        initListaScreen(); // Recarrega a lista após exclusão
-                    }
-                } else {
-                    res.json().then(data => showCustomMessage(data.error || 'Erro ao excluir produto.', 'error'))
-                        .catch(() => showCustomMessage('Erro desconhecido ao excluir produto.', 'error'));
-                }
-            })
-            .catch(() => {
-                showCustomMessage('Erro de conexão ao excluir produto.', 'error');
-            });
+        let products = getProductsFromLocalStorage();
+        const initialLength = products.length;
+        products = products.filter(p => p.id !== id);
+
+        if (products.length === initialLength) {
+            showCustomMessage('Produto não encontrado para deletar.', 'error');
+        } else {
+            saveProductsToLocalStorage(products); // Salva a lista atualizada
+            showCustomMessage('Produto excluído com sucesso!');
+            if (window.location.pathname.endsWith('lista.html')) {
+                initListaScreen(); // Recarrega a lista após exclusão
+            }
+        }
     });
 };
 
